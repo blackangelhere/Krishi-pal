@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KrishiPal - Your Smart Crop Cultivation Companion</title>
+    <style>
+        :root {
+            --primary-color: #388e3c;
+            --secondary-color: #8bc34a;
+            --accent-color: #ffc107;
+            --text-color: #333;
+            --light-bg: #f9f9f9;
+            --white: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .language-selector {
+            text-align: right;
+            margin-bottom: 1rem;
+        }
+        
+        .card {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 1rem;
+            font-weight: bold;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #2e7d32;
+        }
+        
+        .btn-secondary {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #ffb300;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .crop-guide {
+            display: none;
+        }
+        
+        .guide-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .guide-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+        
+        .timeline {
+            margin-top: 2rem;
+        }
+        
+        .timeline-item {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        
+        .timeline-date {
+            flex: 0 0 120px;
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 0.5rem;
+            border-radius: 4px;
+            text-align: center;
+            margin-right: 1rem;
+        }
+        
+        .timeline-content {
+            flex: 1;
+            background-color: var(--light-bg);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .alert {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            background-color: #eee;
+            border: none;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .tab.active {
+            background-color: var(--secondary-color);
+            color: var(--white);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .weather-widget {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        footer {
+            background-color: var(--primary-color);
+            color: var(--white);
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .timeline-item {
+                flex-direction: column;
+            }
+            
+            .timeline-date {
+                margin-bottom: 0.5rem;
+                margin-right: 0;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100;
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: var(--white);
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .reminder-card {
+            background-color: #e8f5e9;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>🌱 KrishiPal</h1>
+        </div>
+        <p>Your Smart Crop Cultivation Companion</p>
+    </header>
+    
+    <div class="container">
+        <div class="language-selector">
+            <select id="language-select">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी (Hindi)</option>
+                <option value="mr">मराठी (Marathi)</option>
+                <option value="ta">தமிழ் (Tamil)</option>
+                <option value="te">తెలుగు (Telugu)</option>
+            </select>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Welcome to KrishiPal</div>
+            <div class="card-body">
+                <p>KrishiPal helps you get the best results from your crops with personalized guidance and timely reminders for all farming activities.</p>
+                <div class="tabs">
+                    <button class="tab active" onclick="openTab('crop-guide-tab')">Crop Guide</button>
+                    <button class="tab" onclick="openTab('my-farm-tab')">My Farm</button>
+                    <button class="tab" onclick="openTab('reminders-tab')">Reminders</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Crop Guide Tab -->
+        <div id="crop-guide-tab" class="tab-content active">
+            <div class="card">
+                <div class="card-header">Select a Crop to Get Started</div>
+                <div class="card-body">
+                    <select id="crop-select" onchange="showCropGuide()">
+                        <option value="">-- Select a crop --</option>
+                        <option value="wheat">Wheat (गेहूं)</option>
+                        <option value="rice">Rice (चावल)</option>
+                        <option value="cotton">Cotton (कपास)</option>
+                        <option value="tomato">Tomato (टमाटर)</option>
+                        <option value="onion">Onion (प्याज)</option>
+                    </select>
+                    
+                    <div class="weather-widget">
+                        <p>Current Weather in <span id="location">Your Location</span></p>
+                        <div>☀️ <span id="temperature">32°C</span> | Humidity: <span id="humidity">65%</span></div>
+                    </div>
+                    
+                    <!-- Wheat Guide -->
+                    <div id="wheat-guide" class="crop-guide">
+                        <h2>Wheat Cultivation Guide</h2>
+                        
+                        <div class="guide-section">
+                            <h3>Soil Preparation</h3>
+                            <p>Wheat grows best in well-drained loamy soil with a pH between 6.0 and 7.0. Prepare the field with:</p>
+                            <ul>
+                                <li>Deep plowing (15-20 cm depth)</li>
+                                <li>2-3 harrowings to break soil clods</li>
+                                <li>Apply 10-12 tons of farmyard manure per hectare</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="guide-section">
+                            <h3>Recommended Varieties</h3>
+                            <ul>
+                                <li><strong>North India:</strong> HD-2967, HD-3086, DBW-17, WH-1105</li>
+                                <li><strong>Central India:</strong> GW-322, GW-366, HI-1544</li>
+                                <li><strong>South India:</strong> MACS-6222, UAS-304</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="guide-section">
+                            <h3>Sowing Time</h3>
+                            <ul>
+                                <li><strong>North India:</strong> October-November</li>
+                                <li><strong>Central India:</strong> November</li>
+                                <li><strong>South India:</strong> November-December</li>
+                            </ul>
+                            <div class="alert">
+                                <strong>Note:</strong> Early sowing (before mid-October) might lead to higher pest infestation.
+                            </div>
+                        </div>
+                        
+                        <div class="guide-section">
+                            <h3>Seed Rate & Spacing</h3>
+                            <ul>
+                                <li>Seed rate: 100-125 kg/hectare</li>
+                                <li>Row spacing: 20-22.5 cm</li>
+                                <li>Seed depth: 5-6 cm</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="guide-section">
+                            <h3>Fertilizer Requirements</h3>
+                            <p><strong>Basic recommendation:</strong></p>
+                            <ul>
+                                <li>Nitrogen (N): 120 kg/hectare</li>
+                                <li>Phosphorus (P): 60 kg/hectare</li>
+                                <li>Potassium (K): 40 kg/hectare</li>
+                            </ul>
+                            <p><strong>Application schedule:</strong></p>
+                            <ul>
+                                <li>Basal application: Full P, K and 1/3rd N at sowing</li>
+                                <li>First top dressing: 1/3rd N at first irrigation (21-25 days)</li>
+                                <li>Second top dressing: 1/3rd N at second irrigation (45-50 days)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="guide-section">
+                            <h3>Irrigation Schedule</h3>
+                            <p>Wheat typically requires 4-6 irrigations depending on soil and weather:</p>
+                            <ol>
+                                <li>Crown root initiation (21-25 days after sowing)</li>
+                                <li>Tillering (45-50 days after sowing)</li>
+                                <li>Jointing (65-70 days after sowing)</li>
+                                <li>Flowering (90-95 days after sowing)</li>
+                                <li>Grain filling (110-115 days after sowing)</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="guide-section">
+                            <h3>Weed Control</h3>
+                            <p><strong>Pre-emergence herbicides:</strong></p>
+                            <ul>
+                                <li>Pendimethalin @ 1.0 kg a.i./ha (within 3 days of sowing)</li>
+                            </ul>
+                            <p><strong>Post-emergence herbicides:</strong></p>
+                            <ul>
+                                <li>For narrow-leaved weeds: Clodinafop-propargyl @ 60 g a.i./ha (30-35 days)</li>
+                                <li>For broad-leaved weeds: Metsulfuron methyl @ 4 g a.i./ha (30-35 days)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="guide-section">
+                            <h3>Pest & Disease Management</h3>
+                            <p><strong>Major pests:</strong></p>
+                            <ul>
+                                <li>Aphids - Spray Imidacloprid @ 20 ml/100L or Thiamethoxam 25 WG @ 50 g/ha</li>
+                                <li>Termites - Apply Chlorpyriphos 20% EC @ 2.5 L/ha</li>
+                            </ul>
+                            <p><strong>Major diseases:</strong></p>
+                            <ul>
+                                <li>Yellow rust - Spray Propiconazole @ 0.1% or Tebuconazole @ 0.1%</li>
+                                <li>Karnal bunt - Seed treatment with Carboxin + Thiram @ 2 g/kg seed</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="guide-section">
+                            <h3>Harvesting</h3>
+                            <p>Harvest when grain moisture content is about 12-14% (typically 120-150 days after sowing). Signs of maturity include:</p>
+                            <ul>
+                                <li>Golden yellow color of crop</li>
+                                <li>Grains becoming hard (not dented when pressed)</li>
+                                <li>Straw becoming dry and brittle</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="guide-section">
+                            <h3>Expected Yield</h3>
+                            <p>Under good management practices:</p>
+                            <ul>
+                                <li>Irrigated conditions: 4.5-6.0 tons/hectare</li>
+                                <li>Rainfed conditions: 2.5-3.5 tons/hectare</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="timeline">
+                            <h3>Crop Calendar</h3>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-date">Day 1</div>
+                                <div class="timeline-content">Sowing after proper field preparation</div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-date">Day 21-25</div>
+                                <div class="timeline-content">First irrigation & nitrogen top dressing</div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-date">Day 30-35</div>
+                                <div class="timeline-content">Weed control with herbicides</div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-date">Day 45-50</div>
+                                <div class="timeline-content">Second irrigation & nitrogen top dressing</div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-date">Day 65-70</div>
+                                <div class="timeline-content">Third irrigation</div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-date">Day 90-95</div>
+                                <div class="timeline-content">Fourth irrigation (flowering stage)</div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-date">Day 110-115</div>
+                                <div class="timeline-content">Fifth irrigation (grain filling stage)</div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-date">Day 120-150</div>
+                                <div class="timeline-content">Harvesting when grains are mature</div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn" onclick="showPlanModal('wheat')">Create My Crop Plan</button>
+                        <button class="btn btn-secondary" onclick="window.print()">Print Guide</button>
+                    </div>
+                    
+                    <!-- Rice Guide (Placeholder) -->
+                    <div id="rice-guide" class="crop-guide">
+                        <h2>Rice Cultivation Guide</h2>
+                        <p>Detailed rice cultivation guide would appear here...</p>
+                        <button class="btn" onclick="showPlanModal('rice')">Create My Crop Plan</button>
+                    </div>
+                    
+                    <!-- Cotton Guide (Placeholder) -->
+                    <div id="cotton-guide" class="crop-guide">
+                        <h2>Cotton Cultivation Guide</h2>
+                        <p>Detailed cotton cultivation guide would appear here...</p>
+                        <button class="btn" onclick="showPlanModal('cotton')">Create My Crop Plan</button>
+                    </div>
+                    
+                    <!-- Tomato Guide (Placeholder) -->
+                    <div id="tomato-guide" class="crop-guide">
+                        <h2>Tomato Cultivation Guide</h2>
+                        <p>Detailed tomato cultivation guide would appear here...</p>
+                        <button class="btn" onclick="showPlanModal('tomato')">Create My Crop Plan</button>
+                    </div>
+                    
+                    <!-- Onion Guide (Placeholder) -->
+                    <div id="onion-guide" class="crop-guide">
+                        <h2>Onion Cultivation Guide</h2>
+                        <p>Detailed onion cultivation guide would appear here...</p>
+                        <button class="btn" onclick="showPlanModal('onion')">Create My Crop Plan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- My Farm Tab -->
+        <div id="my-farm-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">My Farm Details</div>
+                <div class="card-body">
+                    <p>Enter details about your farm to get personalized guidance.</p>
+                    
+                    <form id="farm-form">
+                        <div>
+                            <label for="farmer-name">Your Name:</label>
+                            <input type="text" id="farmer-name" placeholder="Enter your name">
+                        </div>
+                        
+                        <div>
+                            <label for="phone-number">Phone Number:</label>
+                            <input type="tel" id="phone-number" placeholder="Enter your phone number">
+                        </div>
+                        
+                        <div>
+                            <label for="location">Village/District:</label>
+                            <input type="text" id="farmer-location" placeholder="Enter your village or district">
+                        </div>
+                        
+                        <div>
+                            <label for="state">State:</label>
+                            <select id="state">
+                                <option value="">-- Select State --</option>
+                                <option value="up">Uttar Pradesh</option>
+                                <option value="punjab">Punjab</option>
+                                <option value="haryana">Haryana</option>
+                                <option value="mp">Madhya Pradesh</option>
+                                <option value="maharashtra">Maharashtra</option>
+                                <option value="gujarat">Gujarat</option>
+                                <option value="rajasthan">Rajasthan</option>
+                                <option value="bihar">Bihar</option>
+                                <option value="wb">West Bengal</option>
+                                <option value="karnataka">Karnataka</option>
+                                <option value="ap">Andhra Pradesh</option>
+                                <option value="telangana">Telangana</option>
+                                <option value="tn">Tamil Nadu</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="farm-size">Farm Size (Acres):</label>
+                            <input type="number" id="farm-size" placeholder="Enter farm size">
+                        </div>
+                        
+                        <div>
+                            <label>Current Crops:</label>
+                            <div>
+                                <input type="checkbox" id="crop-wheat" value="wheat">
+                                <label for="crop-wheat">Wheat</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="crop-rice" value="rice">
+                                <label for="crop-rice">Rice</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="crop-cotton" value="cotton">
+                                <label for="crop-cotton">Cotton</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="crop-tomato" value="tomato">
+                                <label for="crop-tomato">Tomato</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="crop-onion" value="onion">
+                                <label for="crop-onion">Onion</label>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn" onclick="saveFarmDetails()">Save Farm Details</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card" id="active-crops-card" style="display: none;">
+                <div class="card-header">My Active Crops</div>
+                <div class="card-body" id="active-crops-list">
+                    <!-- Active crops will be displayed here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reminders Tab -->
+        <div id="reminders-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">Upcoming Farm Activities</div>
+                <div class="card-body">
+                    <div class="alert">
+                        <strong>Weather Alert:</strong> Light rainfall expected in your area in the next 48 hours. Consider adjusting your irrigation schedule accordingly.
+                    </div>
+                    
+                    <h3>Today's Activities</h3>
+                    <div id="today-reminders">
+                        <!-- Reminders will be dynamically added here -->
+                    </div>
+                    
+                    <h3>Upcoming Activities</h3>
+                    <div id="upcoming-reminders">
+                        <!-- Reminders will be dynamically added here -->
+                    </div>
+                    
+                    <h3>Notification Settings</h3>
+                    <form id="reminder-settings">
+                        <div>
+                            <label>Reminder Methods:</label>
+                            <div>
+                                <input type="checkbox" id="reminder-sms" checked>
+                                <label for="reminder-sms">SMS</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="reminder-whatsapp">
+                                <label for="reminder-whatsapp">WhatsApp</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="reminder-app" checked>
+                                <label for="reminder-app">App Notifications</label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="reminder-frequency">Reminder Frequency:</label>
+                            <select id="reminder-frequency">
+                                <option value="daily">Daily</option>
+                                <option value="weekly" selected>Weekly</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                        
+                        <button type="button" class="btn" onclick="saveReminderSettings()">Save Settings</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Create Crop Plan Modal -->
+        <div id="plan-modal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+                <h2>Create Crop Plan for <span id="modal-crop-name">Wheat</span></h2>
+                
+                <form id="crop-plan-form">
+                    <div>
+                        <label for="sowing-date">Sowing Date:</label>
+                        <input type="date" id="sowing-date">
+                    </div>
+                    
+                    <div>
+                        <label for="area">Area (Acres):</label>
+                        <input type="number" id="area" min="0.1" step="0.1" placeholder="Enter area">
+                    </div>
+                    
+                    <div>
+                        <label for="plan-location">Location/District:</label>
+                        <input type="text" id="plan-location" placeholder="Enter your location">
+                    </div>
+                    
+                    <div>
+                        <label for="seed-variety">Seed Variety:</label>
+                        <select id="seed-variety">
+                            <option value="">-- Select Variety --</option>
+                            <!-- Options will be dynamically populated based on crop -->
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="irrigation-type">Irrigation Type:</label>
+                        <select id="irrigation-type">
+                            <option value="flood">Flood Irrigation</option>
+                            <option value="drip">Drip Irrigation</option>
+                            <option value="sprinkler">Sprinkler</option>
+                            <option value="rainfed">Rainfed</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="notification-preference">Notification Preference:</label>
+                        <select id="notification-preference">
+                            <option value="sms">SMS</option>
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="both">Both SMS & WhatsApp</option>
+                        </select>
+                    </div>
+                    
+                    <button type="button" class="btn" onclick="createCropPlan()">Create Plan & Set Reminders</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 KrishiPal - Your Smart Crop Cultivation Companion</p>
+    </footer>
+    
+    <script>
+        // Tab Navigation
+        function openTab(tabId) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Deactivate all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activate the selected tab
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab[onclick="openTab('${tabId}')"]`).classList.add('active');
+        }
+        
+        // Show Crop Guide
+        function showCropGuide() {
+            const cropSelect = document.getElementById('crop-select');
+            const selectedCrop = cropSelect.value;
+            
+            // Hide all guides
+            const guides = document.querySelectorAll('.crop-guide');
+            guides.forEach(guide => {
+                guide.style.display = 'none';
+            });
+            
+            // Show selected guide if it exists
+            if (selectedCrop) {
+                const guide = document.getElementById(`${selectedCrop}-guide`);
+                if (guide) {
+                    guide.style.display = 'block';
+                }
+            }
+        }
+        
+        // Modal Functions
+        function showPlanModal(crop) {
+            document.getElementById('modal-crop-name').textContent = crop.charAt(0).toUpperCase() + crop.slice(1);
+            document.getElementById('plan-modal').style.display = 'block';
+            
+            // Populate seed varieties based on selected crop
+            const seedVarietySelect = document.getElementById('seed-variety');
+            seedVarietySelect.innerHTML = '<option value="">-- Select Variety --</option>';
+            
+            if (crop === 'wheat') {
+                const varieties = [
+                    'HD-2967', 'HD-3086', 'DBW-17', 'WH-1105', 'GW-322', 
+                    'GW-366', 'HI-1544', 'MACS-6222', 'UAS-304'
+                ];
+                
+                varieties.forEach(variety => {
+                    const option = document.createElement('option');
+                    option.value = variety.toLowerCase();
+                    option.textContent = variety;
+                    seedVarietySelect.appendChild(option);
+                });
+            } else if (crop === 'rice') {
+                const varieties = ['MTU-1010', 'IR-64', 'Swarna', 'PR-126', 'HMT'];
+                varieties.forEach(variety => {
+                    const
